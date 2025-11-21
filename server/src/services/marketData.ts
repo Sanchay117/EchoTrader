@@ -9,18 +9,29 @@ interface Ticker {
   volume: number;
   high: number;
   low: number;
+  region: 'US' | 'IN';
+  currency: 'USD' | 'INR';
 }
 
 // Initial mock data
 const INITIAL_ASSETS = [
-  { symbol: 'AAPL', price: 150.00 },
-  { symbol: 'TSLA', price: 200.00 },
-  { symbol: 'GOOGL', price: 2800.00 },
-  { symbol: 'AMZN', price: 3400.00 },
-  { symbol: 'MSFT', price: 300.00 },
-  { symbol: 'BTC', price: 45000.00 },
-  { symbol: 'ETH', price: 3000.00 },
-  { symbol: 'SPY', price: 440.00 },
+  // US Market
+  { symbol: 'AAPL', price: 150.00, region: 'US', currency: 'USD' },
+  { symbol: 'TSLA', price: 200.00, region: 'US', currency: 'USD' },
+  { symbol: 'GOOGL', price: 2800.00, region: 'US', currency: 'USD' },
+  { symbol: 'AMZN', price: 3400.00, region: 'US', currency: 'USD' },
+  { symbol: 'MSFT', price: 300.00, region: 'US', currency: 'USD' },
+  { symbol: 'BTC', price: 45000.00, region: 'US', currency: 'USD' },
+  { symbol: 'ETH', price: 3000.00, region: 'US', currency: 'USD' },
+  
+  // Indian Market
+  { symbol: 'RELIANCE', price: 2400.00, region: 'IN', currency: 'INR' },
+  { symbol: 'TCS', price: 3500.00, region: 'IN', currency: 'INR' },
+  { symbol: 'HDFCBANK', price: 1600.00, region: 'IN', currency: 'INR' },
+  { symbol: 'INFY', price: 1500.00, region: 'IN', currency: 'INR' },
+  { symbol: 'ICICIBANK', price: 950.00, region: 'IN', currency: 'INR' },
+  { symbol: 'TATAMOTORS', price: 600.00, region: 'IN', currency: 'INR' },
+  { symbol: 'SBIN', price: 580.00, region: 'IN', currency: 'INR' },
 ];
 
 export class MarketDataService {
@@ -45,6 +56,8 @@ export class MarketDataService {
         volume: 1000000,
         high: asset.price * 1.01,
         low: asset.price * 0.99,
+        region: asset.region as 'US' | 'IN',
+        currency: asset.currency as 'USD' | 'INR',
       });
     });
   }
