@@ -84,12 +84,12 @@ A modern, production-quality paper trading platform built with **React**, **Node
 
 We have an exciting roadmap to make EchoTrader the ultimate paper trading platform:
 
-*   **Advanced Order Types**: Limit, Stop-Loss, and Take-Profit orders for better risk management.
-*   **User Profiles & Leaderboards**: Compete with friends and see who has the highest alpha.
-*   **Mobile Application**: A React Native mobile app for trading on the go.
-*   **Social Trading**: Share your trades and follow top performers.
-*   **News & Sentiment**: Real-time news feed and AI-driven sentiment analysis for each asset.
-*   **Options Trading**: Support for options chains and complex strategies.
+*   **Algorithmic Trading API**: REST/WebSocket API for users to connect their own trading bots.
+*   **Portfolio Analytics**: Advanced metrics like Sharpe Ratio, Max Drawdown, and Beta.
+*   **Social Trading & Leaderboards**: Follow top traders, copy their portfolios, and compete for the highest alpha.
+*   **Crypto & Forex**: Expansion into cryptocurrency and foreign exchange markets.
+*   **Margin Trading**: Simulate borrowing power, leverage, and margin calls.
+*   **Mobile Application**: A native iOS/Android app built with React Native.
 
 ## License
 MIT
