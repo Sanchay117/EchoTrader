@@ -9,6 +9,7 @@ interface Ticker {
   low: number;
   region: 'US' | 'IN';
   currency: 'USD' | 'INR';
+  volume: number;
 }
 
 interface MarketContextType {
