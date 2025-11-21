@@ -28,27 +28,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (email: string, password: string) => {
-    const res = await fetch('http://localhost:3000/api/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
-    if (!res.ok) throw new Error('Login failed');
-    const data = await res.json();
-    setUser(data);
-    localStorage.setItem('user', JSON.stringify(data));
+    console.log('Attempting login for:', email);
+    try {
+      const res = await fetch('http://localhost:3000/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Login failed');
+      }
+      const data = await res.json();
+      console.log('Login success:', data);
+      setUser(data);
+      localStorage.setItem('user', JSON.stringify(data));
+    } catch (e) {
+      console.error('Login error:', e);
+      throw e;
+    }
   };
 
   const register = async (email: string, password: string, name: string) => {
-    const res = await fetch('http://localhost:3000/api/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, name }),
-    });
-    if (!res.ok) throw new Error('Registration failed');
-    const data = await res.json();
-    setUser(data);
-    localStorage.setItem('user', JSON.stringify(data));
+    console.log('Attempting register for:', email);
+    try {
+      const res = await fetch('http://localhost:3000/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, name }),
+      });
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Registration failed');
+      }
+      const data = await res.json();
+      console.log('Register success:', data);
+      setUser(data);
+      localStorage.setItem('user', JSON.stringify(data));
+    } catch (e) {
+      console.error('Register error:', e);
+      throw e;
+    }
   };
 
   const logout = () => {

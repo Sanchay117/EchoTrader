@@ -12,6 +12,7 @@ const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,8 +22,8 @@ const Login: React.FC = () => {
       } else {
         await login(email, password);
       }
-    } catch (err) {
-      alert('Error: ' + err);
+    } catch (err: any) {
+      setError(err.message || 'An error occurred');
     }
   };
 
@@ -30,6 +31,11 @@ const Login: React.FC = () => {
     <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div className="card" style={{ width: '400px' }}>
         <h2 style={{ marginBottom: '1.5rem', textAlign: 'center' }}>{isRegister ? 'Create Account' : 'Welcome Back'}</h2>
+        {error && (
+          <div className="text-danger" style={{ marginBottom: '1rem', textAlign: 'center', padding: '0.5rem', backgroundColor: 'rgba(239, 68, 68, 0.1)', borderRadius: 'var(--radius-sm)' }}>
+            {error}
+          </div>
+        )}
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {isRegister && (
             <input placeholder="Name" value={name} onChange={e => setName(e.target.value)} required />
