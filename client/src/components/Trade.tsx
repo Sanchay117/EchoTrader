@@ -110,31 +110,57 @@ export const Trade: React.FC = () => {
         </div>
       </div>
 
-      {/* Middle Column: Chart */}
-      <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '1.5rem', overflow: 'hidden' }}>
-         {ticker ? (
-           <>
-             <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-               <div>
-                 <h1 style={{ fontSize: '1.75rem', fontWeight: 'bold', lineHeight: 1.2 }}>{ticker.symbol}</h1>
-                 <div className="text-secondary" style={{ fontSize: '0.9rem' }}>{selectedMarket === 'US' ? 'NASDAQ' : 'NSE'} • {ticker.currency}</div>
-               </div>
-               <div style={{ textAlign: 'right' }}>
-                 <div style={{ fontSize: '1.75rem', fontWeight: 'bold', color: ticker.change >= 0 ? 'var(--success)' : 'var(--danger)' }}>
-                   {new Intl.NumberFormat('en-US', { style: 'currency', currency: ticker.currency }).format(ticker.price)}
+import { NewsFeed } from './NewsFeed';
+
+// ... inside Trade component ...
+  const [news, setNews] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (selectedSymbol) {
+      fetch(`http://localhost:3000/api/history/${selectedSymbol}`)
+        .then(res => res.json())
+        .then(setChartData);
+        
+      fetch(`http://localhost:3000/api/news/${selectedSymbol}`)
+        .then(res => res.json())
+        .then(setNews);
+    }
+  }, [selectedSymbol]);
+
+// ... inside JSX, Middle Column ...
+      {/* Middle Column: Chart & News */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1.5rem', overflow: 'hidden' }}>
+        <div className="card" style={{ flex: 2, display: 'flex', flexDirection: 'column', padding: '1.5rem', minHeight: '400px' }}>
+           {ticker ? (
+             <>
+               {/* ... Chart Header ... */}
+               <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                 <div>
+                   <h1 style={{ fontSize: '1.75rem', fontWeight: 'bold', lineHeight: 1.2 }}>{ticker.symbol}</h1>
+                   <div className="text-secondary" style={{ fontSize: '0.9rem' }}>{selectedMarket === 'US' ? 'NASDAQ' : 'NSE'} • {ticker.currency}</div>
                  </div>
-                 <div className={ticker.change >= 0 ? 'text-success' : 'text-danger'} style={{ fontSize: '1rem', fontWeight: '500' }}>
-                   {ticker.change >= 0 ? '+' : ''}{ticker.change.toFixed(2)} ({ticker.changePercent.toFixed(2)}%)
+                 <div style={{ textAlign: 'right' }}>
+                   <div style={{ fontSize: '1.75rem', fontWeight: 'bold', color: ticker.change >= 0 ? 'var(--success)' : 'var(--danger)' }}>
+                     {new Intl.NumberFormat('en-US', { style: 'currency', currency: ticker.currency }).format(ticker.price)}
+                   </div>
+                   <div className={ticker.change >= 0 ? 'text-success' : 'text-danger'} style={{ fontSize: '1rem', fontWeight: '500' }}>
+                     {ticker.change >= 0 ? '+' : ''}{ticker.change.toFixed(2)} ({ticker.changePercent.toFixed(2)}%)
+                   </div>
                  </div>
                </div>
-             </div>
-             <div style={{ flex: 1, width: '100%', minHeight: 0 }}>
-               {chartData.length > 0 ? <Chart data={chartData} /> : <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>Loading Chart...</div>}
-             </div>
-           </>
-         ) : (
-           <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>Select an asset to view chart</div>
-         )}
+               <div style={{ flex: 1, width: '100%', minHeight: 0 }}>
+                 {chartData.length > 0 ? <Chart data={chartData} /> : <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>Loading Chart...</div>}
+               </div>
+             </>
+           ) : (
+             <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>Select an asset to view chart</div>
+           )}
+        </div>
+        
+        {/* News Section */}
+        <div style={{ flex: 1, minHeight: '250px', overflowY: 'auto' }}>
+          <NewsFeed news={news} />
+        </div>
       </div>
 
       {/* Right Column: Order Entry */}

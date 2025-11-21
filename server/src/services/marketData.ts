@@ -140,4 +140,27 @@ export class MarketDataService {
 
     return data;
   }
+
+  public getNews(symbol: string): any[] {
+    const sentiments = ['POSITIVE', 'NEGATIVE', 'NEUTRAL'];
+    const headlines = [
+      `Analysts upgrade ${symbol} after strong earnings`,
+      `${symbol} faces regulatory scrutiny in new market`,
+      `Market rally boosts ${symbol} to new highs`,
+      `${symbol} announces strategic partnership`,
+      `Investors cautious ahead of ${symbol} report`
+    ];
+
+    return Array.from({ length: 5 }).map((_, i) => {
+      const sentiment = sentiments[Math.floor(Math.random() * sentiments.length)];
+      return {
+        id: i,
+        headline: headlines[Math.floor(Math.random() * headlines.length)],
+        source: 'Financial Times',
+        time: new Date(Date.now() - i * 3600000).toISOString(),
+        sentiment,
+        score: sentiment === 'POSITIVE' ? 0.8 : sentiment === 'NEGATIVE' ? -0.6 : 0.1
+      };
+    });
+  }
 }
