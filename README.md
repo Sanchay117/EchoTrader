@@ -80,5 +80,16 @@ A modern, production-quality paper trading platform built with **React**, **Node
 3.  **Open in Browser**
     Navigate to `http://localhost:5173` and create an account to start trading!
 
+## 🚀 Future Improvements
+
+We have an exciting roadmap to make EchoTrader the ultimate paper trading platform:
+
+*   **Advanced Order Types**: Limit, Stop-Loss, and Take-Profit orders for better risk management.
+*   **User Profiles & Leaderboards**: Compete with friends and see who has the highest alpha.
+*   **Mobile Application**: A React Native mobile app for trading on the go.
+*   **Social Trading**: Share your trades and follow top performers.
+*   **News & Sentiment**: Real-time news feed and AI-driven sentiment analysis for each asset.
+*   **Options Trading**: Support for options chains and complex strategies.
+
 ## License
 MIT
