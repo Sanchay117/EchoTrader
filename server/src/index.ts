@@ -84,6 +84,12 @@ app.get('/api/news/:symbol', (req, res) => {
   res.json(news);
 });
 
+app.get('/api/options/:symbol', (req, res) => {
+  const { symbol } = req.params;
+  const chain = marketDataService.getOptionsChain(symbol);
+  res.json(chain);
+});
+
 // Trading Routes
 app.post('/api/order', async (req, res) => {
   const { userId, symbol, side, quantity, type } = req.body;

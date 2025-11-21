@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useMarket } from '../context/MarketContext';
 import { useAuth } from '../context/AuthContext';
 import { Chart } from './Chart';
-import { Search } from 'lucide-react';
+import { NewsFeed } from './NewsFeed';
+import { OptionChain } from './OptionChain';
+import { Search, BarChart2, FileText, Layers } from 'lucide-react';
 
 export const Trade: React.FC = () => {
   const { tickers, getTickersByMarket, selectedMarket } = useMarket();
@@ -10,9 +12,14 @@ export const Trade: React.FC = () => {
   const [selectedSymbol, setSelectedSymbol] = useState<string>('');
   const [quantity, setQuantity] = useState<number>(1);
   const [side, setSide] = useState<'BUY' | 'SELL'>('BUY');
+  const [orderType, setOrderType] = useState<'MARKET' | 'LIMIT' | 'STOP'>('MARKET');
+  const [limitPrice, setLimitPrice] = useState<string>('');
   const [status, setStatus] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState('');
   const [chartData, setChartData] = useState<any[]>([]);
+  const [news, setNews] = useState<any[]>([]);
+  const [optionChain, setOptionChain] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<'CHART' | 'NEWS' | 'OPTIONS'>('CHART');
 
   const marketTickers = getTickersByMarket().filter(t => 
     t.symbol.toLowerCase().includes(searchQuery.toLowerCase())
@@ -30,10 +37,24 @@ export const Trade: React.FC = () => {
       fetch(`http://localhost:3000/api/history/${selectedSymbol}`)
         .then(res => res.json())
         .then(setChartData);
+        
+      fetch(`http://localhost:3000/api/news/${selectedSymbol}`)
+        .then(res => res.json())
+        .then(setNews);
+
+      fetch(`http://localhost:3000/api/options/${selectedSymbol}`)
+        .then(res => res.json())
+        .then(setOptionChain);
     }
   }, [selectedSymbol]);
 
   const ticker = tickers.get(selectedSymbol);
+
+  useEffect(() => {
+    if (ticker && orderType === 'LIMIT' && !limitPrice) {
+      setLimitPrice(ticker.price.toFixed(2));
+    }
+  }, [ticker, orderType]);
 
   const handleOrder = async () => {
     if (!user || !ticker) return;
@@ -48,13 +69,14 @@ export const Trade: React.FC = () => {
           symbol: selectedSymbol,
           side,
           quantity: Number(quantity),
-          type: 'MARKET'
+          type: orderType,
+          price: orderType === 'MARKET' ? ticker.price : Number(limitPrice)
         })
       });
       
       const data = await res.json();
       if (res.ok) {
-        setStatus(`Order Filled! Executed at ${new Intl.NumberFormat('en-US', { style: 'currency', currency: ticker.currency }).format(data.price)}`);
+        setStatus(`Order Placed! ${orderType} ${side} ${quantity} @ ${orderType === 'MARKET' ? 'Market' : limitPrice}`);
       } else {
         setStatus(`Error: ${data.error}`);
       }
@@ -110,56 +132,69 @@ export const Trade: React.FC = () => {
         </div>
       </div>
 
-import { NewsFeed } from './NewsFeed';
+      {/* Middle Column: Tabs & Content */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1rem', overflow: 'hidden' }}>
+        {/* Tabs */}
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <button 
+            className={`btn ${activeTab === 'CHART' ? 'btn-primary' : 'btn-ghost'}`}
+            onClick={() => setActiveTab('CHART')}
+            style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}
+          >
+            <BarChart2 size={16} /> Chart
+          </button>
+          <button 
+            className={`btn ${activeTab === 'NEWS' ? 'btn-primary' : 'btn-ghost'}`}
+            onClick={() => setActiveTab('NEWS')}
+            style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}
+          >
+            <FileText size={16} /> News
+          </button>
+          <button 
+            className={`btn ${activeTab === 'OPTIONS' ? 'btn-primary' : 'btn-ghost'}`}
+            onClick={() => setActiveTab('OPTIONS')}
+            style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}
+          >
+            <Layers size={16} /> Options Chain
+          </button>
+        </div>
 
-// ... inside Trade component ...
-  const [news, setNews] = useState<any[]>([]);
-
-  useEffect(() => {
-    if (selectedSymbol) {
-      fetch(`http://localhost:3000/api/history/${selectedSymbol}`)
-        .then(res => res.json())
-        .then(setChartData);
-        
-      fetch(`http://localhost:3000/api/news/${selectedSymbol}`)
-        .then(res => res.json())
-        .then(setNews);
-    }
-  }, [selectedSymbol]);
-
-// ... inside JSX, Middle Column ...
-      {/* Middle Column: Chart & News */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1.5rem', overflow: 'hidden' }}>
-        <div className="card" style={{ flex: 2, display: 'flex', flexDirection: 'column', padding: '1.5rem', minHeight: '400px' }}>
+        {/* Content Area */}
+        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: activeTab === 'OPTIONS' ? 0 : '1.5rem', overflow: 'hidden' }}>
            {ticker ? (
              <>
-               {/* ... Chart Header ... */}
-               <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                 <div>
-                   <h1 style={{ fontSize: '1.75rem', fontWeight: 'bold', lineHeight: 1.2 }}>{ticker.symbol}</h1>
-                   <div className="text-secondary" style={{ fontSize: '0.9rem' }}>{selectedMarket === 'US' ? 'NASDAQ' : 'NSE'} • {ticker.currency}</div>
-                 </div>
-                 <div style={{ textAlign: 'right' }}>
-                   <div style={{ fontSize: '1.75rem', fontWeight: 'bold', color: ticker.change >= 0 ? 'var(--success)' : 'var(--danger)' }}>
-                     {new Intl.NumberFormat('en-US', { style: 'currency', currency: ticker.currency }).format(ticker.price)}
+               {activeTab !== 'OPTIONS' && (
+                 <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                   <div>
+                     <h1 style={{ fontSize: '1.75rem', fontWeight: 'bold', lineHeight: 1.2 }}>{ticker.symbol}</h1>
+                     <div className="text-secondary" style={{ fontSize: '0.9rem' }}>{selectedMarket === 'US' ? 'NASDAQ' : 'NSE'} • {ticker.currency}</div>
                    </div>
-                   <div className={ticker.change >= 0 ? 'text-success' : 'text-danger'} style={{ fontSize: '1rem', fontWeight: '500' }}>
-                     {ticker.change >= 0 ? '+' : ''}{ticker.change.toFixed(2)} ({ticker.changePercent.toFixed(2)}%)
+                   <div style={{ textAlign: 'right' }}>
+                     <div style={{ fontSize: '1.75rem', fontWeight: 'bold', color: ticker.change >= 0 ? 'var(--success)' : 'var(--danger)' }}>
+                       {new Intl.NumberFormat('en-US', { style: 'currency', currency: ticker.currency }).format(ticker.price)}
+                     </div>
+                     <div className={ticker.change >= 0 ? 'text-success' : 'text-danger'} style={{ fontSize: '1rem', fontWeight: '500' }}>
+                       {ticker.change >= 0 ? '+' : ''}{ticker.change.toFixed(2)} ({ticker.changePercent.toFixed(2)}%)
+                     </div>
                    </div>
                  </div>
-               </div>
-               <div style={{ flex: 1, width: '100%', minHeight: 0 }}>
-                 {chartData.length > 0 ? <Chart data={chartData} /> : <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>Loading Chart...</div>}
+               )}
+
+               <div style={{ flex: 1, width: '100%', minHeight: 0, overflow: 'auto' }}>
+                 {activeTab === 'CHART' && (
+                   chartData.length > 0 ? <Chart data={chartData} /> : <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>Loading Chart...</div>
+                 )}
+                 {activeTab === 'NEWS' && (
+                   <NewsFeed news={news} />
+                 )}
+                 {activeTab === 'OPTIONS' && (
+                   <OptionChain chain={optionChain} symbol={ticker.symbol} />
+                 )}
                </div>
              </>
            ) : (
-             <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>Select an asset to view chart</div>
+             <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>Select an asset to view details</div>
            )}
-        </div>
-        
-        {/* News Section */}
-        <div style={{ flex: 1, minHeight: '250px', overflowY: 'auto' }}>
-          <NewsFeed news={news} />
         </div>
       </div>
 
@@ -168,7 +203,8 @@ import { NewsFeed } from './NewsFeed';
         <h2 style={{ marginBottom: '1.5rem', fontSize: '1.25rem' }}>Place Order</h2>
         
         {ticker ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', flex: 1 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', flex: 1 }}>
+            {/* Side Selector */}
             <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', padding: '0.25rem', borderRadius: 'var(--radius-md)' }}>
               <button 
                 className="btn"
@@ -196,32 +232,71 @@ import { NewsFeed } from './NewsFeed';
               </button>
             </div>
 
+            {/* Order Type Selector */}
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Quantity</label>
-              <div style={{ position: 'relative' }}>
-                <input 
-                  type="number" 
-                  min="1"
-                  value={quantity}
-                  onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 0))}
-                  style={{ fontSize: '1.1rem', fontWeight: '600', padding: '1rem' }}
-                />
-              </div>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Order Type</label>
+              <select 
+                value={orderType}
+                onChange={(e) => setOrderType(e.target.value as any)}
+                style={{ 
+                  width: '100%', 
+                  padding: '0.75rem', 
+                  borderRadius: 'var(--radius-md)', 
+                  background: 'rgba(15, 23, 42, 0.6)', 
+                  border: '1px solid var(--border-color)',
+                  color: 'var(--text-primary)',
+                  fontSize: '1rem'
+                }}
+              >
+                <option value="MARKET">Market Order</option>
+                <option value="LIMIT">Limit Order</option>
+                <option value="STOP">Stop Order</option>
+              </select>
             </div>
 
+            {/* Limit Price Input (Conditional) */}
+            {orderType !== 'MARKET' && (
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{orderType === 'LIMIT' ? 'Limit Price' : 'Stop Price'}</label>
+                <input 
+                  type="number" 
+                  value={limitPrice}
+                  onChange={(e) => setLimitPrice(e.target.value)}
+                  placeholder="0.00"
+                  style={{ fontSize: '1.1rem', fontWeight: '600', padding: '0.75rem' }}
+                />
+              </div>
+            )}
+
+            {/* Quantity Input */}
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Quantity</label>
+              <input 
+                type="number" 
+                min="1"
+                value={quantity}
+                onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 0))}
+                style={{ fontSize: '1.1rem', fontWeight: '600', padding: '0.75rem' }}
+              />
+            </div>
+
+            {/* Order Summary */}
             <div style={{ padding: '1rem', backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                <span className="text-secondary" style={{ fontSize: '0.9rem' }}>Price</span>
-                <span style={{ fontWeight: '500' }}>{new Intl.NumberFormat('en-US', { style: 'currency', currency: ticker.currency }).format(ticker.price)}</span>
+                <span className="text-secondary" style={{ fontSize: '0.9rem' }}>Est. Price</span>
+                <span style={{ fontWeight: '500' }}>
+                  {new Intl.NumberFormat('en-US', { style: 'currency', currency: ticker.currency }).format(orderType === 'MARKET' ? ticker.price : Number(limitPrice) || 0)}
+                </span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '0.5rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
                 <span className="text-secondary" style={{ fontSize: '0.9rem' }}>Total</span>
                 <span style={{ fontWeight: 'bold', fontSize: '1.1rem', color: 'var(--text-primary)' }}>
-                  {new Intl.NumberFormat('en-US', { style: 'currency', currency: ticker.currency }).format(ticker.price * quantity)}
+                  {new Intl.NumberFormat('en-US', { style: 'currency', currency: ticker.currency }).format((orderType === 'MARKET' ? ticker.price : Number(limitPrice) || 0) * quantity)}
                 </span>
               </div>
             </div>
 
+            {/* Submit Button */}
             <div style={{ marginTop: 'auto' }}>
               <button 
                 className="btn" 

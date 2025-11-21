@@ -163,4 +163,37 @@ export class MarketDataService {
       };
     });
   }
+
+  public getOptionsChain(symbol: string): any[] {
+    const ticker = this.tickers.get(symbol);
+    if (!ticker) return [];
+
+    const currentPrice = ticker.price;
+    const strikes = [];
+    for (let i = -5; i <= 5; i++) {
+      strikes.push(Math.round(currentPrice + i * (currentPrice * 0.02))); // 2% intervals
+    }
+
+    return strikes.map(strike => {
+      const dist = (currentPrice - strike) / strike;
+      const callPrice = Math.max(0.01, (currentPrice - strike) + Math.abs(dist) * currentPrice * 0.1);
+      const putPrice = Math.max(0.01, (strike - currentPrice) + Math.abs(dist) * currentPrice * 0.1);
+      
+      return {
+        strike,
+        call: {
+          price: callPrice,
+          volume: Math.floor(Math.random() * 1000),
+          oi: Math.floor(Math.random() * 5000),
+          iv: 0.2 + Math.random() * 0.1
+        },
+        put: {
+          price: putPrice,
+          volume: Math.floor(Math.random() * 1000),
+          oi: Math.floor(Math.random() * 5000),
+          iv: 0.2 + Math.random() * 0.1
+        }
+      };
+    });
+  }
 }
