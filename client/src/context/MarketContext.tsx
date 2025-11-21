@@ -7,11 +7,16 @@ interface Ticker {
   changePercent: number;
   high: number;
   low: number;
+  region: 'US' | 'IN';
+  currency: 'USD' | 'INR';
 }
 
 interface MarketContextType {
   tickers: Map<string, Ticker>;
   isConnected: boolean;
+  selectedMarket: 'US' | 'IN';
+  setSelectedMarket: (market: 'US' | 'IN') => void;
+  getTickersByMarket: () => Ticker[];
 }
 
 const MarketContext = createContext<MarketContextType | null>(null);
@@ -19,6 +24,7 @@ const MarketContext = createContext<MarketContextType | null>(null);
 export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [tickers, setTickers] = useState<Map<string, Ticker>>(new Map());
   const [isConnected, setIsConnected] = useState(false);
+  const [selectedMarket, setSelectedMarket] = useState<'US' | 'IN'>('US');
 
   useEffect(() => {
     const ws = new WebSocket('ws://localhost:3000');
@@ -40,8 +46,12 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return () => ws.close();
   }, []);
 
+  const getTickersByMarket = () => {
+    return Array.from(tickers.values()).filter(t => t.region === selectedMarket);
+  };
+
   return (
-    <MarketContext.Provider value={{ tickers, isConnected }}>
+    <MarketContext.Provider value={{ tickers, isConnected, selectedMarket, setSelectedMarket, getTickersByMarket }}>
       {children}
     </MarketContext.Provider>
   );
