@@ -75,8 +75,7 @@ app.get('/api/history/:symbol', (req, res) => {
   res.json(data);
 });
 
-  res.json(data);
-});
+
 
 app.get('/api/news/:symbol', (req, res) => {
   const { symbol } = req.params;
