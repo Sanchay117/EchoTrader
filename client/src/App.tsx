@@ -57,26 +57,43 @@ const Login: React.FC = () => {
   );
 };
 
+import { NavLink } from 'react-router-dom';
+
 const LayoutComponent: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { logout } = useAuth();
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
-      <aside style={{ width: '250px', borderRight: '1px solid var(--border-color)', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
-        <div style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Activity className="text-success" />
-          EchoTrader
+    <div className="app-layout">
+      <aside className="sidebar">
+        <div style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '3rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div style={{ background: 'var(--accent-gradient)', padding: '0.5rem', borderRadius: '0.5rem', display: 'flex' }}>
+            <Activity size={24} color="white" />
+          </div>
+          <span className="text-gradient">EchoTrader</span>
         </div>
         
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1 }}>
-          <Link to="/" className="btn" style={{ textAlign: 'left', backgroundColor: 'var(--bg-tertiary)' }}>Dashboard</Link>
-          <Link to="/trade" className="btn" style={{ textAlign: 'left', backgroundColor: 'transparent' }}>Trade</Link>
+          <NavLink 
+            to="/" 
+            className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+            end
+          >
+            <Layout size={20} />
+            Dashboard
+          </NavLink>
+          <NavLink 
+            to="/trade" 
+            className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+          >
+            <Activity size={20} />
+            Trade
+          </NavLink>
         </nav>
 
-        <button onClick={logout} className="btn" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted)' }}>
-          <LogOut size={16} /> Logout
+        <button onClick={logout} className="nav-link" style={{ background: 'transparent', border: 'none', width: '100%', cursor: 'pointer', marginTop: 'auto' }}>
+          <LogOut size={20} /> Logout
         </button>
       </aside>
-      <main style={{ flex: 1, overflowY: 'auto' }}>
+      <main className="main-content">
         {children}
       </main>
     </div>
