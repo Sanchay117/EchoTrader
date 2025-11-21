@@ -117,4 +117,27 @@ export class MarketDataService {
   public getCurrentPrice(symbol: string): number | undefined {
     return this.tickers.get(symbol)?.price;
   }
+
+  public getHistoricalData(symbol: string, days: number = 30): any[] {
+    const ticker = this.tickers.get(symbol);
+    if (!ticker) return [];
+
+    const data = [];
+    let price = ticker.price * 0.9; // Start slightly lower to simulate a trend
+    const now = new Date();
+
+    for (let i = days; i > 0; i--) {
+      const time = new Date(now.getTime() - i * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const volatility = price * 0.02;
+      const open = price + (Math.random() - 0.5) * volatility;
+      const close = price + (Math.random() - 0.5) * volatility;
+      const high = Math.max(open, close) + Math.random() * volatility;
+      const low = Math.min(open, close) - Math.random() * volatility;
+
+      data.push({ time, open, high, low, close });
+      price = close;
+    }
+
+    return data;
+  }
 }

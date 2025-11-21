@@ -4,15 +4,28 @@ A modern, production-quality paper trading platform built with **React**, **Node
 
 ## Features
 
-*   **Real-time Market Simulation**: Live price updates via WebSockets for both **US** and **Indian** markets.
-*   **Multi-Market Support**: Seamlessly switch between US Stocks (USD) and Indian Stocks (INR).
-*   **Modern UI/UX**: Sleek "Glassmorphism" design with dark mode, gradients, and neon accents.
-*   **Portfolio Tracking**: Real-time P&L updates, equity tracking, and position management.
-*   **Instant Order Execution**: Market orders are filled immediately at the current simulated price.
+### 📈 Real-time Trading
+*   **Live Market Data**: Simulated price feeds streaming via WebSockets for realistic price action.
+*   **Interactive Charts**: Beautiful candlestick charts to visualize price history and trends.
+*   **Instant Execution**: Market orders are filled immediately at the current simulated price.
+
+### 🌍 Multi-Market Support
+*   **US Markets**: Trade top US stocks like AAPL, TSLA, GOOGL in USD.
+*   **Indian Markets**: Switch instantly to trade Indian giants like RELIANCE, TCS, HDFCBANK in INR.
+*   **Smart Filtering**: Search and filter assets by name or symbol.
+
+### 💼 Portfolio Management
+*   **Real-time P&L**: Watch your equity and profit/loss update with every tick.
+*   **Position Tracking**: Detailed breakdown of all your open positions.
+*   **Order History**: (Coming Soon) Track all your past trades.
+
+### 🎨 Modern Experience
+*   **Glassmorphism UI**: A premium, dark-mode aesthetic with rich gradients and neon accents.
+*   **Responsive Design**: Works beautifully on desktop and tablet.
 
 ## Tech Stack
 
-*   **Frontend**: React, Vite, TypeScript, Vanilla CSS (Variables & Theming)
+*   **Frontend**: React, Vite, TypeScript, Vanilla CSS (Variables & Theming), Lightweight Charts
 *   **Backend**: Node.js, Express, TypeScript, WebSockets (`ws`)
 *   **Database**: SQLite (via Prisma ORM)
 

@@ -69,6 +69,12 @@ app.get('/api/portfolio/:userId', async (req, res) => {
   res.json(portfolio);
 });
 
+app.get('/api/history/:symbol', (req, res) => {
+  const { symbol } = req.params;
+  const data = marketDataService.getHistoricalData(symbol);
+  res.json(data);
+});
+
 // Trading Routes
 app.post('/api/order', async (req, res) => {
   const { userId, symbol, side, quantity, type } = req.body;
